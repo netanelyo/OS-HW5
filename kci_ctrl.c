@@ -166,19 +166,19 @@ int main(int argc, char** argv) {
 
 	if (!strcmp(argv[1], "-init"))
 	{
-		case_init(argv[2]); 									// Initialising device
+		case_init(argv[2]); 					// Initialising device
 	}
 
 	else if (!strcmp(argv[1], "-pid"))
 	{
 		pid = strtol(argv[2], NULL, 10);
-		open_and_send_ioctl_cmd(IOCTL_SET_PID, pid);			// Sending IOCTL_SET_PID
+		open_and_send_ioctl_cmd(IOCTL_SET_PID, pid);		// Sending IOCTL_SET_PID
 	}
 
 	else if (!strcmp(argv[1], "-fd"))
 	{
 		fd = strtol(argv[2], NULL, 10);
-		open_and_send_ioctl_cmd(IOCTL_SET_FD, fd);				// Sending IOCTL_SET_FD
+		open_and_send_ioctl_cmd(IOCTL_SET_FD, fd);		// Sending IOCTL_SET_FD
 	}
 
 	else if (!strcmp(argv[1], "-start"))
