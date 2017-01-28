@@ -28,7 +28,7 @@ static struct dentry 	 *subdir;		       	// Path to logger sub directory
 static unsigned long 	**sys_call_table;	       	// Pointer to syscall table
 static unsigned long 	  original_cr0;	 	       	// To keep original syscall table permissions
 static size_t 		  buf_pos;		       	// logger_buf index
-static char   		  logger_buf[BUF_LEN] = { 0 }; 	// Writing to logger with this buffer
+static char   		  logger_buf[BUFFSIZE] = { 0 }; 	// Writing to logger with this buffer
 
 /* Original syscalls declarations */
 asmlinkage long (*ref_read)(int fd, char* __user buf,size_t count);
@@ -51,9 +51,9 @@ int write_to_logger(int successful, int wanted, char* func){
 		}
 		
 		// If exceeds BUFFSIZE -> zero buf_pos
-		if ((buf_pos + ret) >= BUF_LEN)
+		if ((buf_pos + ret) >= BUFFSIZE)
 		{
-			memset(logger_buf, 0, BUF_LEN);
+			memset(logger_buf, 0, BUFFSIZE);
 			buf_pos = 0;
 		}
 

@@ -10,7 +10,6 @@
 #define LOG_FILE_PATH "/sys/kernel/debug/kcikmod"
 #define BUFFSIZE 1024
 #define SUCCESS 0
-#define BUF_LEN (PAGE_SIZE << 2) /* 16KB buffer (assuming 4KB PAGE_SIZE) */
 #define CIPHER_FLAG 1
 #define NEW_LOG "calls"
 
