@@ -16,6 +16,11 @@
 
 void copy_log_file();
 
+/*
+ * Auxiliary function. Handles the "-init" case.
+ *
+ * @param path - path to the ".ko" file
+ */
 void case_init(char* path){
 	int 	fd_ko;
 	int 	rc;
@@ -50,6 +55,9 @@ void case_init(char* path){
 	}
 }
 
+/*
+ * Auxiliary function. Handles the "-rm" case.
+ */
 void case_rm(){
 	int rc;
 
@@ -57,7 +65,7 @@ void case_rm(){
 	copy_log_file();
 
 	// Removing module from kernel space
-	rc = syscall(__NR_delete_module, MODULE_NAME, 0);
+	rc = syscall(__NR_delete_module, MODULE_NAME, O_NONBLOCK); //TODO maybe "| O_TRUNC"
 	if (rc)
 	{
 		printf("Error removing module from kernel space: %s\n", strerror(errno));
