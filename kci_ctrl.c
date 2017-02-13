@@ -65,7 +65,7 @@ void case_rm(){
 	copy_log_file();
 
 	// Removing module from kernel space
-	rc = syscall(__NR_delete_module, MODULE_NAME, O_NONBLOCK); //TODO maybe "| O_TRUNC"
+	rc = syscall(__NR_delete_module, MODULE_NAME, O_NONBLOCK); 
 	if (rc)
 	{
 		printf("Error removing module from kernel space: %s\n", strerror(errno));

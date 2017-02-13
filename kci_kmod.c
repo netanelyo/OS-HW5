@@ -23,12 +23,12 @@ static int filedesc;
 static int cipher_flag;
 
 /* Declarations */
-static struct dentry 	 *file;		 	       	// Path to logger file
-static struct dentry 	 *subdir;		       	// Path to logger sub directory
-static unsigned long 	**sys_call_table;	       	// Pointer to syscall table
-static unsigned long 	  original_cr0;	 	       	// To keep original syscall table permissions
-static size_t 		  buf_pos;		       	// logger_buf index
-static char   		  logger_buf[BUFFSIZE] = { 0 }; 	// Writing to logger with this buffer
+static struct dentry 	 *file;		 	       		// Path to logger file
+static struct dentry 	 *subdir;		       		// Path to logger sub directory
+static unsigned long 	**sys_call_table;	       		// Pointer to syscall table
+static unsigned long 	  original_cr0;	 	       		// To keep original syscall table permissions
+static size_t 		  buf_pos;		       		// logger_buf index
+static char   		  logger_buf[LOG_BUFF_SIZE] = { 0 }; 	// Writing to logger with this buffer
 
 /* Original syscalls declarations */
 asmlinkage long (*ref_read)(int fd, char* __user buf,size_t count);
@@ -50,10 +50,10 @@ int write_to_logger(int successful, int wanted, char* func){
 			return -1;
 		}
 		
-		// If exceeds BUFFSIZE -> zero buf_pos
-		if ((buf_pos + ret) >= BUFFSIZE)
+		// If exceeds LOG_BUFF_SIZE -> zero buf_pos
+		if ((buf_pos + ret) >= LOG_BUFF_SIZE)
 		{
-			memset(logger_buf, 0, BUFFSIZE);
+			memset(logger_buf, 0, LOG_BUFF_SIZE);
 			buf_pos = 0;
 		}
 
@@ -77,19 +77,10 @@ static int get_and_set(char* buff, int count, int x){
 	for (i = 0; i < count; i++)
 	{
 		rc = get_user(c, buff + i);
-		if (rc < 0)
-		{
-			printk("Error getting i-th char.\n");
-			return rc;
-		}
-
+		
 		c += x;
+
 		rc = put_user(c, buff + i);
-		if (rc < 0)
-		{
-			printk("Error writing i-th char.\n");
-			return rc;
-		}
 	}
 
 	return SUCCESS;
@@ -133,11 +124,15 @@ asmlinkage long new_write(int fd, char* __user buf,size_t count){
 
 	if (to_encrypt)				 // If true - encrypt
 	{
+		write_cr0(original_cr0 & ~0x00010000);
+
 		rc = get_and_set(buf, count, 1); // Add 1 to each char
 		if (rc)
 		{
 			return -1;
 		}
+
+		write_cr0(original_cr0);
 	}
 
 	// Writing to user file using regular write
@@ -146,11 +141,15 @@ asmlinkage long new_write(int fd, char* __user buf,size_t count){
 	// Restoring user buffer
 	if (to_encrypt && bytes > 0)
 	{
+		write_cr0(original_cr0 & ~0x00010000);
+
 		rc = get_and_set(buf, count, -1);
 		if (rc)
 		{
 			return -1;
 		}
+
+		write_cr0(original_cr0);
 		
 		rc = write_to_logger(bytes, count, "WRITE");
 		if (rc)
@@ -186,13 +185,13 @@ static long device_ioctl(struct file* file, unsigned int ioctl_num, unsigned lon
 	switch (ioctl_num){
 
 	case (IOCTL_SET_PID):
-		pid = 		(int)ioctl_param;
+		pid 		= (int)ioctl_param;
 		break;
 	case (IOCTL_SET_FD):
-		filedesc = 	(int)ioctl_param;
+		filedesc 	= (int)ioctl_param;
 		break;
 	case(IOCTL_CIPHER):
-		cipher_flag = 	(int)ioctl_param;
+		cipher_flag 	= (int)ioctl_param;
 		break;
 	default:
 		return -1;

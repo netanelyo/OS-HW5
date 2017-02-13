@@ -12,6 +12,7 @@
 #define SUCCESS 0
 #define CIPHER_FLAG 1
 #define NEW_LOG "calls"
+#define LOG_BUFF_SIZE (PAGE_SIZE << 2)
 
 #define IOCTL_SET_PID _IOW(MAJOR_NUM, 0, unsigned long)
 #define IOCTL_SET_FD _IOW(MAJOR_NUM, 1, unsigned long)
