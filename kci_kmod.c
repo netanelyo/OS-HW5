@@ -37,7 +37,7 @@ asmlinkage long (*ref_write)(int fd, char* __user buf,size_t count);
 static long device_ioctl(struct file* file, unsigned int ioctl_num, unsigned long ioctl_param);
 
 /* Write to debug logger */
-int write_to_logger(int successful, int wanted, char* func){
+static int write_to_logger(int successful, int wanted, char* func){
 		char 	msg[BUFFSIZE/2] = { 0 };
 		int 	ret = 0;
 		
@@ -102,14 +102,13 @@ asmlinkage long new_read(int fd, char* __user buf,size_t count){
 		rc = get_and_set(buf, bytes, -1); // Subtract 1 out of each char
 		if (rc)
 		{
-			return -1;
+			printk("Error accessing user memory\n");
 		}
 
 		rc = write_to_logger(bytes, count, "READ");
 		if (rc)
 		{
-			printk("Error writing to logger.\n");
-			return -1;
+			printk("Error writing to logger.\n");	
 		}
 	}
 
@@ -129,7 +128,7 @@ asmlinkage long new_write(int fd, char* __user buf,size_t count){
 		rc = get_and_set(buf, count, 1); // Add 1 to each char
 		if (rc)
 		{
-			return -1;
+			printk("Error accessing user memory\n");
 		}
 
 		write_cr0(original_cr0);
@@ -146,7 +145,7 @@ asmlinkage long new_write(int fd, char* __user buf,size_t count){
 		rc = get_and_set(buf, count, -1);
 		if (rc)
 		{
-			return -1;
+			printk("Error accessing user memory\n");
 		}
 
 		write_cr0(original_cr0);
@@ -155,7 +154,6 @@ asmlinkage long new_write(int fd, char* __user buf,size_t count){
 		if (rc)
 		{
 			printk("Error writing to logger.\n");
-			return -1;
 		}
 	}
 
